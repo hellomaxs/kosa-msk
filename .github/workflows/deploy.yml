@@ -1,0 +1,56 @@
+name: Deploy to Yandex Cloud
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.YC_S3_ACCESS_KEY }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_S3_SECRET_KEY }}
+  AWS_DEFAULT_REGION: ru-central1
+  YC_BUCKET: kosa-msk
+  YC_S3_ENDPOINT: https://storage.yandexcloud.net
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (static export)
+        run: npm run build
+
+      - name: Sync assets (long cache)
+        run: |
+          aws s3 sync out/ "s3://${YC_BUCKET}" \
+            --endpoint-url "${YC_S3_ENDPOINT}" \
+            --delete \
+            --exclude "*.html" \
+            --exclude "*.xml" \
+            --exclude "*.txt" \
+            --cache-control "public,max-age=31536000,immutable"
+
+      - name: Sync HTML/XML/TXT (no cache)
+        run: |
+          aws s3 sync out/ "s3://${YC_BUCKET}" \
+            --endpoint-url "${YC_S3_ENDPOINT}" \
+            --delete \
+            --exclude "*" \
+            --include "*.html" \
+            --include "*.xml" \
+            --include "*.txt" \
+            --cache-control "public,max-age=0,must-revalidate"
