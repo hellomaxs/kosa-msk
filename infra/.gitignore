@@ -1,0 +1,8 @@
+# Стейт хранит секреты в открытом виде — в репозиторий он попадать не должен
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+*.auto.tfvars
+crash.log

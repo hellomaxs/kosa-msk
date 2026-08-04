@@ -1,0 +1,15 @@
+# Скопируйте в terraform.tfvars и подставьте свои значения:
+#   cp terraform.tfvars.example terraform.tfvars
+#
+# Узнать ID после `yc init`:
+#   yc config get cloud-id
+#   yc config get folder-id
+
+cloud_id  = "b1gxxxxxxxxxxxxxxxxx"
+folder_id = "b1gyyyyyyyyyyyyyyyyy"
+
+domain = "kosa-msk.ru"
+
+# true  — DNS-зону ведёт Yandex Cloud (тогда у регистратора нужно поменять NS)
+# false — зона остаётся у регистратора, записи добавляете вручную
+create_dns_zone = true
