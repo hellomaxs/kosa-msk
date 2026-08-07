@@ -25,7 +25,7 @@ Push в `main` → GitHub Actions (`.github/workflows/deploy.yml`) → `npm ci` 
   `kosa-msk` (public-read, website hosting index.html/404.html).
 - **GitHub Secrets** (уже установлены): `YC_S3_ACCESS_KEY`, `YC_S3_SECRET_KEY` — статический
   ключ сервис-аккаунта `kosa-msk-deployer`. Не менять/не выводить в лог.
-- **Домен `kosa-msk.ru` — подключение в процессе.** Реальный домен клиента (был на
+- **✅ Домен `kosa-msk.ru` подключён (2026-08-07)** — и apex, и `www` открываются по HTTPS. Реальный домен клиента (был на
   NS flexbe.ru с заблокированной страницей конструктора, переключён на NS REG.RU).
   Архитектура: Yandex Object Storage (бакет `kosa-msk`) → **CDN-ресурс** `bc8rj6ubftvlwuyxxewn`
   (folder `kosa-msk`, origin-group `1303867032640262596`) → домены `kosa-msk.ru` +
