@@ -17,7 +17,7 @@ export function Hero() {
 
       <div className="relative mx-auto flex min-h-[92svh] max-w-6xl flex-col justify-end px-6 pb-20 sm:pb-28">
         <p className="mb-6 text-[11px] font-medium uppercase tracking-[0.4em] text-accent">
-          Москва · с 2019 года
+          Москва · наращивание волос
         </p>
         <h1 className="max-w-3xl font-[family-name:var(--font-display)] text-[clamp(2.5rem,7vw,5rem)] leading-[1.05] font-medium text-[#f5f0e9]">
           Волосы, которые
@@ -25,8 +25,8 @@ export function Hero() {
           не выдают себя
         </h1>
         <p className="mt-7 max-w-lg text-base leading-relaxed text-[#f5f0e9]/80 sm:text-lg">
-          Славянские волосы без силикона и химической обработки. Подбираем
-          оттенок под ваш — до неотличимости.
+          Премиальные натуральные волосы без силикона и химической обработки.
+          Подбираем оттенок под ваш — до неотличимости.
         </p>
 
         <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:gap-4">

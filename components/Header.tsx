@@ -27,6 +27,9 @@ export function Header() {
           <a href="#process" className="transition-colors hover:text-foreground">
             Как это устроено
           </a>
+          <a href="#faq" className="transition-colors hover:text-foreground">
+            Вопросы
+          </a>
           <a href="#contacts" className="transition-colors hover:text-foreground">
             Контакты
           </a>

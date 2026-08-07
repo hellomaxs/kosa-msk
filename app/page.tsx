@@ -4,6 +4,7 @@ import { Claims } from "@/components/Claims";
 import { Lengths } from "@/components/Lengths";
 import { Services } from "@/components/Services";
 import { Process } from "@/components/Process";
+import { Faq } from "@/components/Faq";
 import { Contact } from "@/components/Contact";
 import { Footer } from "@/components/Footer";
 
@@ -17,6 +18,7 @@ export default function Home() {
         <Lengths />
         <Services />
         <Process />
+        <Faq />
         <Contact />
       </main>
       <Footer />

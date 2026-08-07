@@ -7,7 +7,7 @@ const services = [
     title: "Волосы на срезе",
     image: "/img/bundles.webp",
     description:
-      "Славянский срез в натуральных оттенках — от платинового блонда до тёмного шатена. Каждая прядь с сохранённой кутикулой, без силиконовых покрытий.",
+      "Премиальный натуральный срез в естественных оттенках — от русого до тёмного шатена. Каждая прядь с сохранённой кутикулой, без силиконовых покрытий.",
     points: ["Длины 40–70 см", "Подбор оттенка по фото", "Отправка по России"],
   },
   {
@@ -30,6 +30,9 @@ export function Services() {
           <p className="text-[11px] font-medium uppercase tracking-[0.35em] text-foreground/55">
             Чем занимаемся
           </p>
+          <h2 className="mt-5 max-w-2xl font-[family-name:var(--font-display)] text-[clamp(1.9rem,4vw,3rem)] leading-tight font-medium">
+            Наращивание волос и продажа среза в Москве
+          </h2>
         </Reveal>
 
         <div className="mt-14 grid gap-14 lg:grid-cols-2 lg:gap-10">
