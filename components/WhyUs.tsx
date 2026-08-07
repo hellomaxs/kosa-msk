@@ -24,7 +24,7 @@ export function WhyUs() {
         <div className="mt-14 grid gap-10 sm:grid-cols-3">
           {points.map((point, i) => (
             <div key={point.title} className="text-center">
-              <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full border border-accent text-sm text-accent">
+              <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-accent text-sm font-medium text-foreground">
                 {String(i + 1).padStart(2, "0")}
               </div>
               <h3 className="font-medium text-foreground">{point.title}</h3>

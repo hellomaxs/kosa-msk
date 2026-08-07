@@ -23,9 +23,10 @@ export function Services() {
           {services.map((service) => (
             <div
               key={service.title}
-              className="rounded-2xl border border-border bg-surface p-8 transition-colors hover:border-accent/50"
+              className="rounded-2xl border border-border bg-surface p-8 text-foreground"
             >
-              <h3 className="font-[family-name:var(--font-display)] text-xl font-medium text-accent">
+              <span className="mb-4 block h-1 w-10 rounded-full bg-accent" />
+              <h3 className="font-[family-name:var(--font-display)] text-xl font-medium">
                 {service.title}
               </h3>
               <p className="mt-3 text-sm leading-relaxed text-foreground/70">

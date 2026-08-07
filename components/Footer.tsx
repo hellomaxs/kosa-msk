@@ -11,7 +11,7 @@ export function Footer() {
           height={33}
           className="h-6 w-auto opacity-80"
         />
-        <p className="text-xs text-muted">
+        <p className="text-xs text-foreground/70">
           © {new Date().getFullYear()} KOSA-MSK · Москва
         </p>
       </div>

@@ -50,7 +50,9 @@ export function Contact() {
               rel={external ? "noopener noreferrer" : undefined}
               className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-8 transition-colors hover:border-accent"
             >
-              <Icon className="h-6 w-6 text-accent" />
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-accent">
+                <Icon className="h-5 w-5 text-foreground" />
+              </span>
               <div>
                 <div className="text-sm font-medium text-foreground">{label}</div>
                 <div className="mt-1 text-xs text-muted">{value}</div>
