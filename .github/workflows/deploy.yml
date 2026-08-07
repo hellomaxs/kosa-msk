@@ -52,17 +52,5 @@ jobs:
             --exclude "_next/*" \
             --cache-control "public,max-age=300,must-revalidate"
 
-      - name: Purge CDN cache
-        env:
-          YC_TOKEN: ${{ secrets.YC_OAUTH_TOKEN }}
-          YC_CDN_RESOURCE_ID: bc8rj6ubftvlwuyxxewn
-          YC_FOLDER_ID: b1gn9nj1tii53skssds8
-        # Optional: only runs once a YC token is configured. Without it the
-        # shorter cache above still lets the CDN pick changes up within minutes.
-        if: ${{ secrets.YC_OAUTH_TOKEN != '' }}
-        run: |
-          curl -sSfL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash -s -- -i "$HOME/yc" -n
-          export PATH="$HOME/yc/bin:$PATH"
-          yc config set token "$YC_TOKEN"
-          yc cdn cache purge --resource-id "$YC_CDN_RESOURCE_ID" \
-            --folder-id "$YC_FOLDER_ID" --path '/*'
+      # No CDN purge step: with the 5-minute revalidate above the CDN picks
+      # changes up on its own. Purging would need a YC token in secrets.
