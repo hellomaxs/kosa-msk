@@ -18,11 +18,14 @@ export function Header() {
         </a>
 
         <nav className="hidden items-center gap-8 text-sm tracking-wide text-foreground/80 md:flex">
+          <a href="#lengths" className="transition-colors hover:text-foreground">
+            Длины
+          </a>
           <a href="#services" className="transition-colors hover:text-foreground">
             Услуги
           </a>
-          <a href="#why" className="transition-colors hover:text-foreground">
-            О нас
+          <a href="#process" className="transition-colors hover:text-foreground">
+            Как это устроено
           </a>
           <a href="#contacts" className="transition-colors hover:text-foreground">
             Контакты
