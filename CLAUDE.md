@@ -4,7 +4,14 @@
 
 Сайт: продажа премиальных славянских волос + услуги наращивания, Москва. Стек: Next.js
 (App Router) + TypeScript + Tailwind v4, **`output: "export"`** — чистая статика в `out/`.
-Контент/дизайн ещё не согласованы — `app/page.tsx` сейчас placeholder-заглушка.
+
+Первая версия дизайна и контента собрана (`components/Header|Hero|Services|WhyUs|Contact|Footer`).
+Бренд: реальный логотип клиента `public/logo.svg`, палитра `#DDCFC2` (акцент, из лого) +
+`#858585` (приглушённый серый) на тёплом тёмном фоне (`app/globals.css`), шрифты Playfair
+Display (заголовки) + Inter (текст), самохостинг через `next/font/google`. Контакты — единый
+источник `lib/content.ts` (реальные телефон/WhatsApp/Telegram — не менять на плейсхолдеры).
+Канал Avito обсуждается, но реальной ссылки на профиль ещё нет — не добавлять с
+угаданным адресом.
 
 ## Деплой (уже настроен и работает автоматически)
 
@@ -18,9 +25,19 @@ Push в `main` → GitHub Actions (`.github/workflows/deploy.yml`) → `npm ci` 
   `kosa-msk` (public-read, website hosting index.html/404.html).
 - **GitHub Secrets** (уже установлены): `YC_S3_ACCESS_KEY`, `YC_S3_SECRET_KEY` — статический
   ключ сервис-аккаунта `kosa-msk-deployer`. Не менять/не выводить в лог.
-- Домен пока не привязан — сайт живёт на `*.website.yandexcloud.net`. Когда появится
-  домен (напр. `kosa-msk.ru`), CNAME на `kosa-msk.website.yandexcloud.net`, и обновить
-  `SITE_URL`/canonical/OG/sitemap.
+- **Домен `kosa-msk.ru` — подключение в процессе.** Реальный домен клиента (был на
+  NS flexbe.ru с заблокированной страницей конструктора, переключён на NS REG.RU).
+  Архитектура: Yandex Object Storage (бакет `kosa-msk`) → **CDN-ресурс** `bc8rj6ubftvlwuyxxewn`
+  (folder `kosa-msk`, origin-group `1303867032640262596`) → домены `kosa-msk.ru` +
+  `www.kosa-msk.ru`, CNAME на провайдера CDN `26a4be0e959e83ec.topology.gslb.yccdn.ru`.
+  TLS — управляемый сертификат Let's Encrypt через Certificate Manager (`kosa-msk-ru`,
+  id `fpqv8soklt8jscodsvr7`, DNS-challenge `_acme-challenge(.www).kosa-msk.ru` CNAME на
+  `fpqv8soklt8jscodsvr7.cm.yandexcloud.net`). ⚠️ Прямой CDN старого типа (флаг
+  `--lets-encrypt-gcore-ssl-cert`) **не работает** — «gcore provider is deprecated»,
+  поэтому сертификат оформлен отдельно и прикрепляется через
+  `yc cdn resource update --cert-manager-ssl-cert-id`. Когда сертификат станет ACTIVE —
+  привязать к CDN-ресурсу и обновить `SITE_URL`/canonical/OG/sitemap на `https://kosa-msk.ru`.
+  До этого момента живой адрес — только `*.website.yandexcloud.net`.
 
 ## Заметки для будущих сессий
 
