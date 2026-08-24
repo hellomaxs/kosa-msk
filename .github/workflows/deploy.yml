@@ -12,7 +12,7 @@ env:
   AWS_ACCESS_KEY_ID: ${{ secrets.YC_S3_ACCESS_KEY }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.YC_S3_SECRET_KEY }}
   AWS_DEFAULT_REGION: ru-central1
-  YC_BUCKET: kosa-msk
+  YC_BUCKET: kosa-msk.ru
   YC_S3_ENDPOINT: https://storage.yandexcloud.net
 
 jobs:
