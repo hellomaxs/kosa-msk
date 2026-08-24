@@ -44,75 +44,79 @@ YandexBot. Ответы в FAQ (`lib/content.ts → faq`) написаны по�
 Push в `main` → GitHub Actions (`.github/workflows/deploy.yml`) → `npm ci` → `npm run build`
 → `aws s3 sync out/` в бакет. Руками ничего запускать не нужно.
 
-- **Живой сайт: https://kosa-msk.ru** (и `www.kosa-msk.ru`).
-  Резервный технический адрес: `https://kosa-msk.website.yandexcloud.net` — он всегда
-  работает напрямую из бакета, минуя CDN.
+- **Живой сайт: https://kosa-msk.ru** (`www.kosa-msk.ru` → 301 на него).
+  Резервный технический адрес: `https://kosa-msk.website.yandexcloud.net` (старый бакет
+  `kosa-msk`, оставлен намеренно).
 - **Yandex Cloud:** каталог `kosa-msk` (`b1gn9nj1tii53skssds8`) в облаке `b1gt7us9j8e95up7fubp`,
-  сервис-аккаунт `kosa-msk-deployer` (`storage.admin`), бакет `kosa-msk` (public-read,
-  website hosting index.html/404.html).
+  сервис-аккаунт `kosa-msk-deployer` (`storage.admin`).
+- **Бакеты:** `kosa-msk.ru` — боевой, туда деплоит CI (public-read, website
+  index.html/404.html). `www.kosa-msk.ru` — только редирект на apex. `kosa-msk` — старый,
+  как резервный адрес.
 - **GitHub Secrets** (установлены): `YC_S3_ACCESS_KEY`, `YC_S3_SECRET_KEY`. Не выводить в лог.
 
 ⚠️ **Кеш.** Вечный `immutable`-кеш только для `out/_next` — там имена файлов
 content-hashed. Всё из `public/` (картинки, llms.txt) сохраняет имя между деплоями и
-кешируется на 5 минут. Если поставить `immutable` на `public/` — CDN будет отдавать старую
-картинку после замены (уже наступали на это). Ручной сброс:
-`yc cdn cache purge --resource-id bc8rj6ubftvlwuyxxewn --folder-id b1gn9nj1tii53skssds8 --all`
-(есть лимит на частоту вызовов).
+кешируется на 5 минут. Если поставить `immutable` на `public/` — старая картинка будет
+отдаваться после замены (уже наступали на это, тогда ещё через CDN). Сейчас CDN нет,
+кеширует только браузер, так что 5 минут — потолок ожидания.
 
 ⚠️ В workflow **нельзя** `if: ${{ secrets.X != '' }}` на уровне шага — контекст `secrets`
 там запрещён, workflow падает мгновенно с 0s и без логов джобы.
 
 ## Домен и TLS — актуальное состояние
 
-Домен клиента `kosa-msk.ru`, DNS на NS REG.RU (раньше был flexbe.ru).
+Домен `kosa-msk.ru`. **NS делегированы на Yandex Cloud DNS** (`ns1.yandexcloud.net`,
+`ns2.yandexcloud.net`) — в панели REG.RU остаётся только смена NS, записи там больше
+не редактируются.
 
-**Архитектура:** бакет `kosa-msk` → origin-group `1303867032640262596` → **CDN-ресурс
-`bc8rj6ubftvlwuyxxewn`** (домены `kosa-msk.ru` + `www.kosa-msk.ru`).
+**Архитектура (2026-08-24): CDN НЕ используется, он удалён.** Домен идёт напрямую
+в Object Storage:
 
-**DNS-записи в REG.RU:**
-- `www` → CNAME `26a4be0e959e83ec.topology.gslb.yccdn.ru`
-- `@` → A `188.72.103.3` (на apex CNAME нельзя; это статический снимок IP GSLB-узла CDN —
-  если Yandex его сменит, голый домен отвалится, а `www` переживёт)
+- бакет `kosa-msk.ru` — сайт, HTTPS-сертификат привязан к бакету
+- бакет `www.kosa-msk.ru` — только `redirect_all_requests` на apex
+- **DNS-зона в Yandex Cloud** `kosa-msk-ru` (`dns9d3qkcpq18pt00jva`):
+  `ANAME @` и `CNAME www` → `kosa-msk.ru.website.yandexcloud.net.`,
+  плюс `_acme-challenge(.www)` CNAME → `fpqfa0l4t4kjavlqa5b1.cm.yandexcloud.net.`
+  (нужны для автопродления сертификата — не удалять)
 
-**TLS:** сертификат Certificate Manager **`kosa-msk-ru-3`, id `fpqfa0l4t4kjavlqa5b1`**,
-статус ISSUED, действует до 2026-11-05.
-⚠️ Более ранние `kosa-msk-ru` (`fpqv8soklt8jscodsvr7`) и `kosa-msk-ru-2`
-(`fpqa6galgfqhhvdilvju`) **УДАЛЕНЫ** — они зависли в VALIDATING. Если где-то встретится
-ссылка на них — она устарела, не выполнять команды с этими ID.
+**Почему ANAME, а не A:** на apex нельзя CNAME. Раньше стояла A-запись с айпишником
+CDN — хрупко. ANAME есть у Yandex Cloud DNS, у REG.RU его не было, из-за этого и
+переезжали DNS.
 
-⚠️ Флаг `yc cdn resource create --lets-encrypt-gcore-ssl-cert` **не работает** на этом
-аккаунте («gcore provider is deprecated»). Сертификат оформляется отдельно через
-`yc certificate-manager certificate request --challenge dns` и привязывается через
-`yc cdn resource update --cert-manager-ssl-cert-id`.
+**TLS:** сертификат Certificate Manager `kosa-msk-ru-3`, id `fpqfa0l4t4kjavlqa5b1`,
+до 2026-11-05, покрывает оба домена. Привязка: `yc storage bucket set-https <бакет>
+--certificate-id fpqfa0l4t4kjavlqa5b1`. Проверка: `yc storage bucket get-https <бакет>`.
+⚠️ Ранние `fpqv8soklt8jscodsvr7` и `fpqa6galgfqhhvdilvju` **удалены** — команды с этими
+ID не выполнять.
 
-### ⚠️ Легаси-CDN нестабилен — как диагностировать «домен не работает»
+### Грабли HTTPS на Object Storage (все словлены на практике)
 
-Этот CDN (`provider_type: ourcdn`) уже дважды показывал расхождение между
-control-plane и edge: `yc cdn resource get` пишет `ssl_certificate: type: CM,
-status: READY`, а edge-узлы при этом отдают **дефолтный** сертификат
-`CN=*.yccdn.cloud.yandex.net` → в браузере `ERR_CERT_COMMON_NAME_INVALID`.
-Один раз это разошлось само примерно за час; второй раз потребовалась перепривязка.
+1. **Имя бакета обязано совпадать с доменом.** Поэтому боевой бакет называется
+   `kosa-msk.ru`, а не `kosa-msk`.
+2. **Каждый домен из сертификата должен иметь свой бакет** — алиас или редирект. Пока
+   не было бакета `www.kosa-msk.ru`, HTTPS не активировался.
+3. **Имя не должно быть занято CDN-ресурсом.** `www` поднялся сразу, а apex продолжал
+   отдавать `CN=*.yccdn.cloud.yandex.net`, пока не удалили CDN-ресурс, державший
+   `cname: kosa-msk.ru`. После удаления — `delete-https` + `set-https` заново.
+4. **Активация не мгновенная** — ~30 минут после того, как домен зарезолвился.
+5. ⚠️ **Локальный DNS-кеш врёт.** Эта машина держала старую A-запись, и проверка
+   упорно показывала CDN-сертификат, когда всё уже работало. Перед выводами:
+   `Clear-DnsClientCache` (PowerShell), либо сверяться с внешним dnschecker.org.
 
-**Не диагностировать по `CLAUDE.md` — проверять фактами:**
-
-```bash
-# 1. Сертификат жив?
-yc certificate-manager certificate list --folder-id b1gn9nj1tii53skssds8
-# 2. Привязан к CDN?
-yc cdn resource get bc8rj6ubftvlwuyxxewn --folder-id b1gn9nj1tii53skssds8 | grep -A6 ssl_certificate
-# 3. Что РЕАЛЬНО отдаёт edge (главная проверка):
-echo | openssl s_client -connect kosa-msk.ru:443 -servername kosa-msk.ru 2>&1 \
-  | openssl x509 -noout -subject
-```
-
-Если в п.3 `CN=kosa-msk.ru` — всё хорошо. Если `CN=*.yccdn.cloud.yandex.net` — edge не
-подхватил конфиг; форсировать перепривязкой:
+**Проверка, что всё живо:**
 
 ```bash
-yc cdn resource update bc8rj6ubftvlwuyxxewn --folder-id b1gn9nj1tii53skssds8 --dont-use-ssl-cert
-yc cdn resource update bc8rj6ubftvlwuyxxewn --folder-id b1gn9nj1tii53skssds8 --cert-manager-ssl-cert-id fpqfa0l4t4kjavlqa5b1
+echo | openssl s_client -connect kosa-msk.ru:443 -servername kosa-msk.ru 2>&1   | openssl x509 -noout -subject
 ```
-и подождать — edge подхватывает не мгновенно (наблюдалось до часа).
+Ожидаем `CN=kosa-msk.ru`.
+
+### Почему ушли с CDN
+
+Легаси-CDN (`provider_type: ourcdn`, единственный доступный — gcore уже отключён)
+**дважды** ломался одинаково: `yc cdn resource get` показывал
+`ssl_certificate: type: CM, status: READY`, а edge-узлы отдавали дефолтный сертификат
+→ `ERR_CERT_COMMON_NAME_INVALID` в браузере. Первый раз разошлось само за час, второй
+раз не помогла даже перепривязка. Сервис сворачивают — не возвращаться на него.
 
 ## Прочее
 
